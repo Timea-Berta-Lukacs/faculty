@@ -1,0 +1,111 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define afisarea(imprimante) printf("Modelul: %s Pretul: %d\n", q->model, q->pret)
+
+typedef struct imprimanta
+{
+	char *model;
+	int pret;
+	struct imroimanta *urm;
+}nod;
+
+nod *introducere(nod *prim, char *model, int pret)
+{
+	nod *p;
+	p = (nod*)malloc(sizeof(nod));
+	p->model = (char*)malloc(strlen(model) + 1);
+	if (p == NULL || p->model == NULL)
+	{
+		printf("Eroare la alocarea memoriei!\n");
+		exit(0);
+	}
+	strcpy(p->model, model);
+	p->pret = pret;
+	p->urm = NULL;
+	if (prim == NULL)
+		return p;
+	else
+	{
+		p->urm = prim;
+		return p;
+	}
+}
+
+void afisare(nod *prim)
+{
+	nod *q;
+	q = prim;
+	while (q != NULL)
+	{
+		afisarea(imprimante);
+		q = q->urm;
+	}
+}
+
+nod *stergere(nod *prim)
+{
+	nod *p;
+	if (prim != NULL)
+	{
+		p = prim;
+		prim = prim->urm;
+		free(p->model);
+		free(p);
+		return prim;
+	}
+}
+
+void salvare(nod *prim)
+{
+	FILE *f;
+	nod *q;
+	f = fopen("imprimante.txt", "w");
+	if (f == NULL)
+		printf("Eroare la deschiderea fisierului!\n");
+	else
+	{
+		q = prim;
+		while (q != NULL)
+		{
+			fprintf(f,"Modelul: %s Pretul: %d\n", q->model, q->pret);
+			q = q->urm;
+		}
+		fclose(f);
+	}
+}
+
+int main()
+{
+	nod *prim = NULL;
+	char model[20];
+	int pret, i, a = 0;
+	enum { iesire, ad, afis, sterg }opt;
+	do
+	{
+		printf("\n0-Iesire\n1-Adaugare unei imprimante\n2-Afisarea imprimantelor\n3-Stergerea primei imprimante\n");
+		printf("Optiunea dvs este: ");
+		scanf("%d", &opt);
+		switch (opt)
+		{
+		case iesire: exit(0);
+			break;
+		case ad: printf("Introduceti modelul imprimantei: ");
+			scanf("%s", model);
+			a = 0;
+			for (i = 0; i <= strlen(model); i++)
+				a = a + (int)model[i];
+			pret = a;
+			prim = introducere(prim, model, pret);
+			break;
+		case afis: afisare(prim);
+			break;
+		case sterg: prim = stergere(prim);
+			salvare(prim);
+			break;
+		default: printf("Optiunea dvs este invalida!\n");
+			break;
+		}
+	} while (1);
+	system("pause");
+	return 0;
+}
